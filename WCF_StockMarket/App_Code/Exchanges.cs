@@ -69,4 +69,50 @@ public class Exchanges : System.Web.Services.WebService
         return exchanges;
     }
 
+    [WebMethod]
+    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    public List<Stock> GetStocksFromExchange(string exchange)
+    {
+        Stock stock;
+        List<Stock> stocks = new List<Stock>();
+
+        string country;
+        string sector;
+        string industry;
+
+        try
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+            builder.DataSource = "stockmarket-cloudcomputing.database.windows.net";
+            builder.UserID = "nowicki-yari";
+            builder.Password = "CLOUD_4090";
+            builder.InitialCatalog = "StockMarketViewer";
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                String sql = "SELECT * FROM dbo.stocks WHERE exchange='" + exchange + "'";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {                            
+                            stock = new Stock(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6));
+                            stocks.Add(stock);
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+        return stocks;
+
+    }
+
 }
