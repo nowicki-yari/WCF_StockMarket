@@ -15,6 +15,15 @@ using NPExchange;
 // [System.Web.Script.Services.ScriptService]
 public class Exchanges : System.Web.Services.WebService
 {
+    private SqlConnectionStringBuilder InitConnection()
+    {
+        SqlConnectionStringBuilder sqlConnection = new SqlConnectionStringBuilder();
+        sqlConnection.DataSource = "stockmarket-cloudcomputing.database.windows.net";
+        sqlConnection.UserID = "nowicki-yari";
+        sqlConnection.Password = "CLOUD_4090";
+        sqlConnection.InitialCatalog = "StockMarketViewer";
+        return sqlConnection;
+    }
 
     public Exchanges()
     {
@@ -37,15 +46,10 @@ public class Exchanges : System.Web.Services.WebService
         List<Exchange> exchanges = new List<Exchange>();
         try
         {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-            builder.DataSource = "stockmarket-cloudcomputing.database.windows.net";
-            builder.UserID = "nowicki-yari";
-            builder.Password = "CLOUD_4090";
-            builder.InitialCatalog = "StockMarketViewer";
-
+            SqlConnectionStringBuilder builder = InitConnection();
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
-                String sql = "SELECT * FROM dbo.exchanges";
+                string sql = "SELECT * FROM dbo.exchanges";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
@@ -76,21 +80,12 @@ public class Exchanges : System.Web.Services.WebService
         Stock stock;
         List<Stock> stocks = new List<Stock>();
 
-        string country;
-        string sector;
-        string industry;
-
         try
         {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-            builder.DataSource = "stockmarket-cloudcomputing.database.windows.net";
-            builder.UserID = "nowicki-yari";
-            builder.Password = "CLOUD_4090";
-            builder.InitialCatalog = "StockMarketViewer";
-
+            SqlConnectionStringBuilder builder = InitConnection();
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
-                String sql = "SELECT * FROM dbo.stocks WHERE exchange='" + exchange + "'";
+                string sql = "SELECT * FROM dbo.stocks WHERE exchange='" + exchange + "'";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
@@ -99,6 +94,111 @@ public class Exchanges : System.Web.Services.WebService
                     {
                         while (reader.Read())
                         {                            
+                            stock = new Stock(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6));
+                            stocks.Add(stock);
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+        return stocks;
+
+    }
+
+    [WebMethod]
+    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    public List<string> GetListOfSectors()
+    {
+        List<string> sectors = new List<string>();
+
+        try
+        {
+            SqlConnectionStringBuilder builder = InitConnection();
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                string sql = "SELECT DISTINCT sector from dbo.stocks WHERE NOT sector=''";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            sectors.Add(reader.GetString(0));
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+        return sectors;
+    }
+
+    [WebMethod]
+    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    public List<string> GetListOfIndustriesFromSector(string sector)
+    {
+        List<string> industries = new List<string>();
+
+        try
+        {
+            SqlConnectionStringBuilder builder = InitConnection();
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                string sql = "SELECT DISTINCT industry from dbo.stocks WHERE NOT industry='' AND sector='" + sector + "'";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            industries.Add(reader.GetString(0));
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+        return industries;
+    }
+
+    [WebMethod]
+    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    public List<Stock> GetStocksFromIndustry(string industry)
+    {
+        Stock stock;
+        List<Stock> stocks = new List<Stock>();
+
+        try
+        {
+            SqlConnectionStringBuilder builder = InitConnection();
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                string sql = "SELECT * FROM dbo.stocks WHERE industry='" + industry + "'";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
                             stock = new Stock(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6));
                             stocks.Add(stock);
                         }
