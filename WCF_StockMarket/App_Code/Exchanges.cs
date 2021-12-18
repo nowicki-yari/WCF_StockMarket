@@ -215,4 +215,54 @@ public class Exchanges : System.Web.Services.WebService
 
     }
 
+    [WebMethod]
+    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    public List<Stock> GetStocks(string stocks)
+    {
+        Stock stock;
+        List<Stock> favorites = new List<Stock>();
+        int count = 1;
+
+        if (string.IsNullOrEmpty(stocks))
+        {
+            return null;
+        }
+        string[] arrStocks = stocks.Split(',');
+        string sql_string = "WHERE symbol='" + arrStocks[0] + "' ";
+        while (arrStocks.Length > count)
+        {
+            sql_string += "OR symbol='"+ arrStocks[count] + "' ";
+            count++;
+        }
+        sql_string += ";";
+        try
+        {
+            SqlConnectionStringBuilder builder = InitConnection();
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                string sql = "SELECT * FROM dbo.stocks " + sql_string;
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            stock = new Stock(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5), reader.GetString(6));
+                            favorites.Add(stock);
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+        return favorites;
+
+    }
+
 }
