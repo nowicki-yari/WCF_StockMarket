@@ -9,7 +9,7 @@ using NPExchange;
 /// <summary>
 /// Summary description for Exchanges
 /// </summary>
-[WebService(Namespace = "http://stockmarketviewer.azurewebsites.net/")]
+[WebService(Namespace = "http://stockmarketviewer-cloud4090.azurewebsites.net/")]
 [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
 // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
 // [System.Web.Script.Services.ScriptService]
@@ -18,10 +18,10 @@ public class Exchanges : System.Web.Services.WebService
     private SqlConnectionStringBuilder InitConnection()
     {
         SqlConnectionStringBuilder sqlConnection = new SqlConnectionStringBuilder();
-        sqlConnection.DataSource = "stockmarket-cloudcomputing.database.windows.net";
+        sqlConnection.DataSource = "stockmarket-cloud4090.database.windows.net";
         sqlConnection.UserID = "nowicki-yari";
         sqlConnection.Password = "CLOUD_4090";
-        sqlConnection.InitialCatalog = "StockMarketViewer";
+        sqlConnection.InitialCatalog = "stockmarket-cloudcomputing";
         return sqlConnection;
     }
 
@@ -39,7 +39,7 @@ public class Exchanges : System.Web.Services.WebService
     }
 
     [WebMethod]
-    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers:"*", methods:"*")]
+    [EnableCors(origins: "http://stockmarketviewer-cloud4090.azurewebsites.net/", headers:"*", methods:"*")]
     public List<Exchange> GetExchanges()
     {
         Exchange exchange;
@@ -74,7 +74,7 @@ public class Exchanges : System.Web.Services.WebService
     }
 
     [WebMethod]
-    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    [EnableCors(origins: "http://stockmarketviewer-cloud4090.azurewebsites.net/", headers: "*", methods: "*")]
     public List<Stock> GetStocksFromExchange(string exchange)
     {
         Stock stock;
@@ -111,7 +111,7 @@ public class Exchanges : System.Web.Services.WebService
     }
 
     [WebMethod]
-    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    [EnableCors(origins: "http://stockmarketviewer-cloud4090.azurewebsites.net/", headers: "*", methods: "*")]
     public List<string> GetListOfSectors()
     {
         List<string> sectors = new List<string>();
@@ -145,7 +145,7 @@ public class Exchanges : System.Web.Services.WebService
     }
 
     [WebMethod]
-    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    [EnableCors(origins: "http://stockmarketviewer-cloud4090.azurewebsites.net/", headers: "*", methods: "*")]
     public List<string> GetListOfIndustriesFromSector(string sector)
     {
         List<string> industries = new List<string>();
@@ -179,7 +179,7 @@ public class Exchanges : System.Web.Services.WebService
     }
 
     [WebMethod]
-    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    [EnableCors(origins: "http://stockmarketviewer-cloud4090.azurewebsites.net/", headers: "*", methods: "*")]
     public List<Stock> GetStocksFromIndustry(string industry)
     {
         Stock stock;
@@ -216,7 +216,7 @@ public class Exchanges : System.Web.Services.WebService
     }
 
     [WebMethod]
-    [EnableCors(origins: "http://stockmarketviewer.azurewebsites.net/", headers: "*", methods: "*")]
+    [EnableCors(origins: "http://stockmarketviewer-cloud4090.azurewebsites.net/", headers: "*", methods: "*")]
     public List<Stock> GetStocks(string stocks)
     {
         Stock stock;
